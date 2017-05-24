@@ -237,6 +237,29 @@ namespace NodeHDF5 {
             break;
           case H5T_INTEGER:
             switch (H5Tget_precision(type)) {
+              case 64:
+		if (H5Tget_sign(type) == H5T_SGN_NONE) {
+                  Local<ArrayBuffer>  arrayBuffer = ArrayBuffer::New(v8::Isolate::GetCurrent(), 8 * nrecords);
+                  Local<Float64Array> buffer      = Float64Array::New(arrayBuffer, 0, nrecords);
+                  buffer->Set(String::NewFromUtf8(v8::Isolate::GetCurrent(), "name"),
+                              String::NewFromUtf8(v8::Isolate::GetCurrent(), field_names[i]));
+                  for (uint32_t j = 0; j < nrecords; j++) {
+                    buffer->Set(j, v8::Number::New(v8::Isolate::GetCurrent(), (double) ((unsigned long long*)&data[j * type_size + field_offsets[i]])[0]));
+                  }
+
+                  table->Set(i, buffer);
+                } else {
+                  Local<ArrayBuffer>  arrayBuffer = ArrayBuffer::New(v8::Isolate::GetCurrent(), 8 * nrecords);
+                  Local<Float64Array> buffer      = Float64Array::New(arrayBuffer, 0, nrecords);
+                  buffer->Set(String::NewFromUtf8(v8::Isolate::GetCurrent(), "name"),
+                              String::NewFromUtf8(v8::Isolate::GetCurrent(), field_names[i]));
+                  for (uint32_t j = 0; j < nrecords; j++) {
+                    buffer->Set(j, v8::Number::New(v8::Isolate::GetCurrent(), (double) ((long long*)&data[j * type_size + field_offsets[i]])[0]));
+                  }
+
+                  table->Set(i, buffer);
+                }
+                break;
               case 32:
                 if (H5Tget_sign(type) == H5T_SGN_NONE) {
                   Local<ArrayBuffer> arrayBuffer = ArrayBuffer::New(v8::Isolate::GetCurrent(), 4 * nrecords);

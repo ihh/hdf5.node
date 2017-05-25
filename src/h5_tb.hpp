@@ -239,22 +239,22 @@ namespace NodeHDF5 {
             switch (H5Tget_precision(type)) {
               case 64:
 		if (H5Tget_sign(type) == H5T_SGN_NONE) {
-                  Local<ArrayBuffer>  arrayBuffer = ArrayBuffer::New(v8::Isolate::GetCurrent(), 8 * nrecords);
-                  Local<Float64Array> buffer      = Float64Array::New(arrayBuffer, 0, nrecords);
+                  Local<Array> buffer = Array::New(v8::Isolate::GetCurrent(), nrecords);
                   buffer->Set(String::NewFromUtf8(v8::Isolate::GetCurrent(), "name"),
                               String::NewFromUtf8(v8::Isolate::GetCurrent(), field_names[i]));
                   for (uint32_t j = 0; j < nrecords; j++) {
-                    buffer->Set(j, v8::Number::New(v8::Isolate::GetCurrent(), (double) ((unsigned long long*)&data[j * type_size + field_offsets[i]])[0]));
+		    std::string cell = std::to_string (((unsigned long long*)&data[j * type_size + field_offsets[i]])[0]);
+		    buffer->Set(j, v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), cell.c_str()));
                   }
 
                   table->Set(i, buffer);
                 } else {
-                  Local<ArrayBuffer>  arrayBuffer = ArrayBuffer::New(v8::Isolate::GetCurrent(), 8 * nrecords);
-                  Local<Float64Array> buffer      = Float64Array::New(arrayBuffer, 0, nrecords);
+                  Local<Array> buffer = Array::New(v8::Isolate::GetCurrent(), nrecords);
                   buffer->Set(String::NewFromUtf8(v8::Isolate::GetCurrent(), "name"),
                               String::NewFromUtf8(v8::Isolate::GetCurrent(), field_names[i]));
                   for (uint32_t j = 0; j < nrecords; j++) {
-                    buffer->Set(j, v8::Number::New(v8::Isolate::GetCurrent(), (double) ((long long*)&data[j * type_size + field_offsets[i]])[0]));
+		    std::string cell = std::to_string (((long long*)&data[j * type_size + field_offsets[i]])[0]);
+		    buffer->Set(j, v8::String::NewFromUtf8(v8::Isolate::GetCurrent(), cell.c_str()));
                   }
 
                   table->Set(i, buffer);
